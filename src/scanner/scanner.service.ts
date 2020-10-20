@@ -147,12 +147,14 @@ export class ScannerService implements OnModuleInit {
 
   private readonly logger = new Logger(ScannerService.name);
 
+  private isRunning: boolean = false;
+
   private store: NodeStatus[] = [];
 
   constructor(private configService: ConfigService, private quotesService: QuotesService) {}
 
-  async onModuleInit(): Promise<void> {
-    await this.scan();
+  onModuleInit() {
+    this.scan();
   }
 
   getNodes(): NodeStatus[] {
@@ -161,6 +163,14 @@ export class ScannerService implements OnModuleInit {
 
   @Cron('0 */5 * * * *')
   async scan(): Promise<boolean> {
+    // skip if already running
+    if (this.isRunning) {
+      this.logger.warn('Scanner already running -> skip');
+      return;
+    }
+
+    this.isRunning = true;
+
     const store: NodeStatus[] = [];
     const maxScore: number = tests.reduce((acc, cur) => { return acc + cur.score }, 0);
 
@@ -268,6 +278,8 @@ export class ScannerService implements OnModuleInit {
     } catch (error) {
       this.logger.error(`Unexpected error during node scanning: ${JSON.stringify(error)}`)
       return false;
+    } finally {
+      this.isRunning = false;
     }
   }
 
