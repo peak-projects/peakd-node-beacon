@@ -11,4 +11,16 @@ export class AppController {
     return 'pong';
   }
 
+  @Get('nodes')
+  getNodes(): NodeStatus[] {
+    return this.scannerService.getNodes();
+  }
+
+  @Get('best')
+  getBest(): NodeStatus[] {
+    return this.scannerService.getNodes()
+      .filter(n => n.score > 75)
+      .sort((a, b) => b.score - a.score);
+  }
+
 }
