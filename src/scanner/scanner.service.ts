@@ -55,11 +55,22 @@ const tests = [
     name: 'get_accounts',
     type: 'fetch',
     method: 'call',
-    params: ['database_api', 'get_accounts', [['peakd']]],
+    params: ['database_api', 'get_accounts', [['hiveio']]],
     score: 15,
     debug: false,
     validator: (result) => {
       return Array.isArray(result) && result.length === 1
+    }
+  },
+  {
+    name: 'get_post',
+    type: 'fetch',
+    method: 'bridge.get_post',
+    params: {author: "hiveio", permlink: "hive-first-community-hardfork-complete", observer: "hiveio"},
+    score: 15,
+    debug: false,
+    validator: (result) => {
+      return result && result.post_id && result.children > 1
     }
   },
   {
@@ -122,7 +133,7 @@ const tests = [
     name: 'transfer',
     type: 'cast',
     method: 'transfer',
-    params: { from: '$', to: '$', amount: '1.000 HIVE', memo: '$' },
+    params: { from: '$', to: '$', amount: '0.001 HIVE', memo: '$' },
     score: 15,
     debug: false,
   },
