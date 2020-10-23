@@ -1,23 +1,26 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Cron } from '@nestjs/schedule';
 import * as hive from '@hiveio/hive-js';
-import { ConfigService } from '@nestjs/config';
+import { ChainTypes, makeBitMaskFilter } from '@hiveio/hive-js/lib/auth/serializer';
 import { QuotesService } from '../quotes/quotes.service';
 
 const HIVE_CHAIN_ID = 'beeab0de00000000000000000000000000000000000000000000000000000000';
 
 const nodes = [
   { name: 'api.hive.blog', endpoint: 'https://api.hive.blog' },
+  { name: 'hive.roelandp.nl', endpoint: 'https://hive.roelandp.nl' },
+  /*
   { name: 'anyx.io', endpoint: 'https://anyx.io' },
   { name: 'api.hivekings.com', endpoint: 'https://api.hivekings.com' },
   { name: 'api.deathwing.me', endpoint: 'https://api.deathwing.me' },
   { name: 'api.openhive.network', endpoint: 'https://api.openhive.network' },
   { name: 'api.pharesim.me', endpoint: 'https://api.pharesim.me' },
-  { name: 'hive.roelandp.nl', endpoint: 'https://hive.roelandp.nl' },
   { name: 'hived.privex.io', endpoint: 'https://hived.privex.io' },
   { name: 'rpc.ausbit.dev', endpoint: 'https://rpc.ausbit.dev' },
   { name: 'hive-api.arcange.eu', endpoint: 'https://hive-api.arcange.eu' },
   { name: 'fin.hive.3speak.co', endpoint: 'https://fin.hive.3speak.co' }
+  */
 ];
 
 const tests = [
@@ -66,7 +69,7 @@ const tests = [
     name: 'get_post',
     type: 'fetch',
     method: 'bridge.get_post',
-    params: {author: "hiveio", permlink: "hive-first-community-hardfork-complete", observer: "hiveio"},
+    params: { author: 'hiveio', permlink: 'hive-first-community-hardfork-complete', observer: 'hiveio' },
     score: 15,
     debug: false,
     validator: (result) => {
@@ -120,6 +123,15 @@ const tests = [
     params: { account: '$', sort: 'replies', limit: 25 },
     score: 15,
     debug: false,
+  },
+  {
+    name: 'get_account_history',
+    type: 'fetch',
+    method: 'call',
+    params: ['database_api', 'get_account_history', ['peak.beacon', -1, 500, ...makeBitMaskFilter([ChainTypes.operations.account_witness_vote])]],
+    score: 15,
+    debug: false,
+    validator: (result) => Array.isArray(result) && result.length === 0
   },
   {
     name: 'custom_json',
@@ -237,18 +249,29 @@ export class ScannerService implements OnModuleInit {
               const start = Date.now();
               let result = null;
               if (test.method === 'custom_json') {
-                const params = { ...test.params, required_posting_auths: [account] };
+                if (postingKey) {
+                  const params = { ...test.params, required_posting_auths: [account] };
 
-                this.logger.log(`Cast '${test.name}', params: ${JSON.stringify(params)}: ...`);
-                result = await hive.broadcast.sendAsync({ operations: [[test.method, params]], extensions: [] }, { posting: postingKey.trim() })
-              } else if (test.method === 'transfer') {
-                const params = { ...test.params, from: account, to: account, memo: this.quotesService.getRandomQuote() };
+                  this.logger.log(`Cast '${test.name}', params: ${JSON.stringify(params)}: ...`);
+                  result = await hive.broadcast.sendAsync({ operations: [[test.method, params]], extensions: [] }, { posting: postingKey.trim() })
+                } else {
+                  this.logger.log(`Skip ${test.name} -> no posting key`);
+                }
+              }
+              else if (test.method === 'transfer') {
+                if (activeKey) {
+                  const params = { ...test.params, from: account, to: account, memo: this.quotesService.getRandomQuote() };
 
-                this.logger.log(`Cast '${test.name}', params: ${JSON.stringify(params)}: ...`);
-                result = await hive.broadcast.sendAsync({ operations: [[test.method, params]], extensions: [] }, { active: activeKey.trim() })
-              } else {
+                  this.logger.log(`Cast '${test.name}', params: ${JSON.stringify(params)}: ...`);
+                  result = await hive.broadcast.sendAsync({ operations: [[test.method, params]], extensions: [] }, { active: activeKey.trim() })
+                } else {
+                  this.logger.log(`Skip ${test.name} -> no active key`);
+                }
+              }
+              else {
                 throw new Error(`Unsupported cast operation ${test.method}`);
               }
+
               if (test.debug) {
                 this.logger.debug(`Cast result: ${JSON.stringify(result)}`);
               }
