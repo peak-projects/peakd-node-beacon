@@ -1,5 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import * as helmet from 'helmet';
+import * as rateLimit from 'express-rate-limit';
 import * as hive from '@hiveio/hive-js';
 import { AppModule } from './app.module';
 
@@ -25,6 +27,15 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
 
+  // security
+  app.use(helmet());
+  app.enableCors();
+  app.use(
+    rateLimit({
+      windowMs: 15 * 60 * 1000, // 10 minutes
+      max: 100, // limit each IP to 100 requests per windowMs
+    }),
+  );
   await app.listen(3000);
   console.log(`Application is running on: ${await app.getUrl()}`);
 }

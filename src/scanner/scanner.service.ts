@@ -7,20 +7,18 @@ import { QuotesService } from '../quotes/quotes.service';
 
 const HIVE_CHAIN_ID = 'beeab0de00000000000000000000000000000000000000000000000000000000';
 
-const nodes = [
+const allNodes = [
   { name: 'api.hive.blog', endpoint: 'https://api.hive.blog' },
-  { name: 'hive.roelandp.nl', endpoint: 'https://hive.roelandp.nl' },
-  /*
   { name: 'anyx.io', endpoint: 'https://anyx.io' },
   { name: 'api.hivekings.com', endpoint: 'https://api.hivekings.com' },
   { name: 'api.deathwing.me', endpoint: 'https://api.deathwing.me' },
   { name: 'api.openhive.network', endpoint: 'https://api.openhive.network' },
-  { name: 'api.pharesim.me', endpoint: 'https://api.pharesim.me' },
-  { name: 'hived.privex.io', endpoint: 'https://hived.privex.io' },
+  { name: 'hive.roelandp.nl', endpoint: 'https://hive.roelandp.nl' },
   { name: 'rpc.ausbit.dev', endpoint: 'https://rpc.ausbit.dev' },
+  { name: 'api.pharesim.me', endpoint: 'https://api.pharesim.me' },
   { name: 'hive-api.arcange.eu', endpoint: 'https://hive-api.arcange.eu' },
+  { name: 'hived.privex.io', endpoint: 'https://hived.privex.io' },
   { name: 'fin.hive.3speak.co', endpoint: 'https://fin.hive.3speak.co' }
-  */
 ];
 
 const tests = [
@@ -199,6 +197,11 @@ export class ScannerService implements OnModuleInit {
 
     try {
       this.logger.log('Starting node scanner ...');
+
+      const excludedNodes = this.configService.get<string>('EXCLUDED_NODES').split(',')
+      const nodes = allNodes.filter(n => !excludedNodes.includes(n.name))
+
+      this.logger.log('Configured nodes: ' + nodes.map(n => n.name));
 
       for (const node of nodes) {
         this.logger.log(`Switching node to: ${node.name}`);
