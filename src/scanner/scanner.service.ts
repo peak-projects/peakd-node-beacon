@@ -198,7 +198,10 @@ export class ScannerService implements OnModuleInit {
     try {
       this.logger.log('Starting node scanner ...');
 
-      const excludedNodes = this.configService.get<string>('EXCLUDED_NODES').split(',')
+      const excludedNodes = this.configService.get<string>('EXCLUDED_NODES')
+        ? this.configService.get<string>('EXCLUDED_NODES').split(',')
+        : [];
+
       const nodes = allNodes.filter(n => !excludedNodes.includes(n.name))
 
       this.logger.log('Configured nodes: ' + nodes.map(n => n.name));
