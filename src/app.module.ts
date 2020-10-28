@@ -15,7 +15,7 @@ import { ScannerModule } from './scanner/scanner.module';
     }),
     ScheduleModule.forRoot(),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'client'),
+      rootPath: join(__dirname, '..', 'client/dist'),
     }),
     CacheModule.register({
       ttl: 30,    // seconds

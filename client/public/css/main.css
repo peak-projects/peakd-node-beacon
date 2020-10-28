@@ -3,14 +3,6 @@ body {
   margin: 0;
 }
 
-html,
-body,
-section {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
 .background {
   background-image: linear-gradient(#000203 0%, #00345E 85%, #004D89 100%);
 }
@@ -19,11 +11,8 @@ section {
   display: block;
   position: relative;
   width: auto;
-  max-width: 450px;
-  height: 90%;
+  max-width: 380px;
   margin: 0 auto;
-  top: 50%;
-  transform: translateY(-50%);
 }
 
 .hover {

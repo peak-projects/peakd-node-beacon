@@ -1,0 +1,59 @@
+{
+  "name": "peakd-node-beacon",
+  "homepage": "https://beacon.peakd.com",
+  "version": "1.0.0",
+  "description": "A Node Monitor tool for the Hive blockchain.",
+  "repository": "https://github.com/peak-projects/peakd-node-beacon",
+  "license": "MIT",
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "build:tailwind": "tailwind build src/assets/styles/index.css -o src/assets/styles/tailwind.css",
+    "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install && npm run build:tailwind && npm run serve"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.1",
+    "@popperjs/core": "^2.5.3",
+    "@tailwindcss/custom-forms": "^0.2.1",
+    "axios": "^0.21.0",
+    "chart.js": "^2.9.4",
+    "core-js": "^3.6.5",
+    "tailwindcss": "^1.9.5",
+    "vue": "^2.6.12",
+    "vue-router": "^3.4.7",
+    "vue-typed-js": "^0.1.2"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^4.5.8",
+    "@vue/cli-plugin-eslint": "^4.5.8",
+    "@vue/cli-service": "^4.5.8",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.8.0",
+    "eslint-plugin-vue": "^6.2.2",
+    "vue-template-compiler": "^2.6.12"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "rules": {},
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}
