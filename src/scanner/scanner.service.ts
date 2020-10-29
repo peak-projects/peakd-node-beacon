@@ -123,6 +123,29 @@ const tests = [
     debug: false,
   },
   {
+    name: 'get_community_pinned_and_muted',
+    type: 'fetch',
+    method: 'bridge.get_ranked_posts',
+    params: { tag :'hive-156509', sort: 'created', limit: 25 },
+    score: 15,
+    debug: false,
+    validator: (result) => {
+      if (!Array.isArray(result) || result.length !== 25) {
+        return false
+      }
+
+      if (result[0].category !== 'hive-156509') {
+        return false
+      }
+
+      if (!result[0].stats || !result[0].stats.is_pinned) {
+        return false
+      }
+
+      return true
+    }
+  },
+  {
     name: 'get_account_history',
     type: 'fetch',
     method: 'call',
