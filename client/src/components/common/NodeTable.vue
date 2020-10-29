@@ -74,7 +74,7 @@
             >
               <div class="flex items-center">
                 <span class="mr-2">{{ node.score }}%</span>
-                <div class="relative w-full">
+                <div class="relative w-full hidden sm:block">
                   <div
                     class="overflow-hidden h-2 text-sm flex rounded"
                     :class="[
@@ -118,10 +118,10 @@
       </table>
     </div>
 
-    <div v-if="showNodeModal" class="overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none justify-center items-center flex">
-      <div class="relative w-auto my-6 mx-auto max-w-6xl">
+    <div v-if="showNodeModal" class="overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none justify-center items-center sm:flex">
+      <div class="relative w-auto mx-auto max-w-6xl">
         <!--content-->
-        <div class="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
+        <div class="border-0 sm:rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
           <!--header-->
           <div class="flex items-start justify-between p-5 border-b border-solid border-gray-300 rounded-t">
             <h3 class="text-3xl font-semibold">
@@ -134,7 +134,7 @@
             </button>
           </div>
           <!--body-->
-          <div class="relative flex-auto">
+          <div class="relative overflow-x-auto flex-auto">
             <table class="items-center w-full bg-transparent border-collapse">
               <thead>
                 <tr>
@@ -233,5 +233,5 @@ export default {
       success: n.tests.filter(t => t.success).length
     }))
   }
-};
+}
 </script>

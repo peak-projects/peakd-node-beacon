@@ -1,7 +1,7 @@
 <template>
   <section>
-    <div class="hover">
-      <svg class="illustration" width="438" height="548" viewBox="0 0 438 548">
+    <div class="hover p-4">
+      <svg class="illustration" viewBox="0 0 438 548">
         <defs
           id="defs47">
           <radialGradient

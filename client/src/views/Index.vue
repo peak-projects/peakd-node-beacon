@@ -16,7 +16,7 @@
       </div>
     </div>
     <header-component class="mt-12"></header-component>
-    <div class="mt-12 pl-8 pr-8">
+    <div class="mt-12 px-1 md:px-8">
       <node-table></node-table>
     </div>
     <div class="container relative mx-auto mt-12">
