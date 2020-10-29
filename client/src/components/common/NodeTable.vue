@@ -77,13 +77,21 @@
                 <div class="relative w-full">
                   <div
                     class="overflow-hidden h-2 text-sm flex rounded"
-                    :class="node.score === 100 ? 'bg-green-200' : node.score > 80 ? 'bg-orange-200' : 'bg-red-200'"
-                  >
+                    :class="[
+                      { 'bg-green-200': node.score === 100 },
+                      { 'bg-yellow-200': node.score > 90 },
+                      { 'bg-orange-200': node.score > 80 },
+                      { 'bg-red-200': node.score < 80 }
+                    ]">
                     <div
                       :style="`width: ${node.score}%;`"
                       class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center"
-                      :class="node.score === 100 ? 'bg-green-500' : node.score > 80 ? 'bg-orange-500' : 'bg-red-500'"
-                    ></div>
+                      :class="[
+                      { 'bg-green-500': node.score === 100 },
+                      { 'bg-yellow-500': node.score > 90 },
+                      { 'bg-orange-500': node.score > 80 },
+                      { 'bg-red-500': node.score < 80 }
+                    ]"></div>
                   </div>
                 </div>
               </div>
@@ -92,7 +100,15 @@
               class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm whitespace-no-wrap p-4"
             >
               <a @click="toggleNodeModal(node)" class="cursor-pointer">
-                <i class="fas fa-circle mr-2" :class="node.score === 100 ? 'text-green-400' : node.score > 80 ? 'text-orange-400' : 'text-red-400'"></i>
+                <i
+                  class="fas fa-circle mr-2"
+                  :class="[
+                    { 'text-green-500': node.score === 100 },
+                    { 'text-yellow-500': node.score > 90 },
+                    { 'text-orange-500': node.score > 80 },
+                    { 'text-red-500': node.score < 80 }
+                  ]">
+                </i>
                 {{ node.success }} / {{ node.tests.length }}
                 <i class="fas fa-search text-lg text-default ml-3"></i>
               </a>
@@ -153,7 +169,11 @@
                   <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm whitespace-no-wrap py-2">
                     <span
                       class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded uppercase last:mr-0 mr-1"
-                      :class="test.type === 'fetch' ? 'text-indigo-600 bg-indigo-200' : test.type === 'cast' ? 'text-purple-600 bg-purple-200' : 'text-gray-600 bg-gray-200'">
+                      :class="[
+                        { 'text-indigo-600 bg-indigo-200': test.type === 'fetch' },
+                        { 'text-purple-600 bg-purple-200': test.type === 'cast' },
+                        { 'text-gray-600 bg-gray-200': !['fetch', 'cast'].includes(test.type) }
+                      ]">
                       {{ test.type }}
                     </span>
                   </td>
