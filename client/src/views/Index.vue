@@ -17,25 +17,20 @@
     </div>
     <header-component class="mt-12"></header-component>
     <div class="mt-12 pl-8 pr-8">
-      <card-table></card-table>
+      <node-table></node-table>
     </div>
     <footer-component />
   </div>
 </template>
 <script>
 import HeaderComponent from "@/components/common/Header.vue";
-import CardTable from "@/components/common/CardTable.vue";
+import NodeTable from "@/components/common/NodeTable.vue";
 import FooterComponent from "@/components/common/Footer.vue";
 
 export default {
-  data() {
-    return {
-
-    };
-  },
   components: {
     HeaderComponent,
-    CardTable,
+    NodeTable,
     FooterComponent,
   },
 };
