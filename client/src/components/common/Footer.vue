@@ -96,7 +96,6 @@
             >
               Peak Projects
             </a>
-            .
           </div>
         </div>
       </div>
