@@ -99,7 +99,7 @@
             <td
               class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm whitespace-no-wrap p-4"
             >
-              <a @click="toggleNodeModal(node)" class="cursor-pointer">
+              <a @click="openNodeModal(node)" class="cursor-pointer">
                 <i
                   class="fas fa-circle mr-2"
                   :class="[
@@ -109,7 +109,7 @@
                     { 'text-red-500': node.score < 80 }
                   ]">
                 </i>
-                {{ node.success }} / {{ node.tests.length }}
+                {{ node.success }} / {{ node.fail }}
                 <i class="fas fa-search text-lg text-default ml-3"></i>
               </a>
             </td>
@@ -127,7 +127,7 @@
             <h3 class="text-3xl font-semibold">
               {{ selectedNode.name }}
             </h3>
-            <button class="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none" @click="toggleNodeModal()">
+            <button class="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none" @click="closeNodeModal()">
               <span class="bg-transparent text-black opacity-5 h-6 w-6 text-2xl block outline-none focus:outline-none">
                 ×
               </span>
@@ -165,7 +165,10 @@
               </thead>
               <tbody>
                 <tr v-for="test in selectedNode.tests" :key="test.name">
-                  <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm whitespace-no-wrap py-2">{{ test.name }}</td>
+                  <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm whitespace-no-wrap py-2">
+                    {{ test.name }}
+                    <i class="far fa-question-circle text-lg text-gray-600 ml-2" :content="test.description || 'No details'" v-tippy='{ arrow : true }'></i>
+                  </td>
                   <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm whitespace-no-wrap py-2">
                     <span
                       class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded uppercase last:mr-0 mr-1"
@@ -185,7 +188,7 @@
           </div>
           <!--footer-->
           <div class="flex items-center justify-end p-2 border-t border-solid border-gray-300 rounded-b">
-            <button class="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150" type="button" @click="toggleNodeModal()">
+            <button class="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150" type="button" @click="closeNodeModal()">
               Close
             </button>
           </div>
@@ -221,17 +224,19 @@ export default {
     }
   },
   methods: {
-    toggleNodeModal: function(node) {
-      this.selectedNode = node
-      this.showNodeModal = !this.showNodeModal
+    openNodeModal: async function(score) {
+      const node = await axios.get(`/nodes/${score.name}`)
+      this.selectedNode = node.data
+      this.showNodeModal = true
+    },
+    closeNodeModal: function () {
+      this.selectedNode = null
+      this.showNodeModal = false
     }
   },
   async mounted() {
     const response = await axios.get('/nodes')
-    this.allNodes = response.data.map(n => ({
-      ...n,
-      success: n.tests.filter(t => t.success).length
-    }))
+    this.allNodes = response.data
   }
 }
 </script>

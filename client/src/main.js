@@ -1,6 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import VueTypedJs from 'vue-typed-js';
+import VueTippy, { TippyComponent } from "vue-tippy";
 import axios from 'axios';
 
 // styles
@@ -28,6 +29,9 @@ Vue.config.productionTip = false;
 
 Vue.use(VueRouter);
 Vue.use(VueTypedJs);
+Vue.use(VueTippy);
+
+Vue.component("tippy", TippyComponent);
 
 axios.defaults.baseURL = process.env.NODE_ENV === 'development' ? 'http://localhost:3000/api' : '/api';
 

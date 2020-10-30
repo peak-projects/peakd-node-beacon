@@ -22,6 +22,7 @@
     "tailwindcss": "^1.9.5",
     "vue": "^2.6.12",
     "vue-router": "^3.4.7",
+    "vue-tippy": "^4.7.1",
     "vue-typed-js": "^0.1.2"
   },
   "devDependencies": {

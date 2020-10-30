@@ -5,8 +5,6 @@ import * as hive from '@hiveio/hive-js';
 import { ChainTypes, makeBitMaskFilter } from '@hiveio/hive-js/lib/auth/serializer';
 import { QuotesService } from '../quotes/quotes.service';
 
-const HIVE_CHAIN_ID = 'beeab0de00000000000000000000000000000000000000000000000000000000';
-
 const allNodes = [
   { name: 'api.hive.blog', endpoint: 'https://api.hive.blog' },
   { name: 'anyx.io', endpoint: 'https://anyx.io' },
@@ -21,159 +19,20 @@ const allNodes = [
   { name: 'fin.hive.3speak.co', endpoint: 'https://fin.hive.3speak.co' }
 ];
 
-const tests = [
-  {
-    name: 'get_version',
-    type: 'fetch',
-    method: 'database_api.get_version',
-    params: {},
-    score: 50,
-    debug: false,
-    validator: (result) => {
-      return result.chain_id === HIVE_CHAIN_ID
-    }
-  },
-  {
-    name: 'dynamic_global_properties',
-    type: 'fetch',
-    method: 'database_api.get_dynamic_global_properties',
-    params: {},
-    score: 15,
-    debug: false,
-    validator: (result) => {
-      return 'head_block_number' in result && 'hbd_interest_rate' in result
-    }
-  },
-  {
-    name: 'feed_history',
-    type: 'fetch',
-    method: 'database_api.get_feed_history',
-    params: {},
-    score: 15,
-    debug: false,
-  },
-  {
-    name: 'get_accounts',
-    type: 'fetch',
-    method: 'call',
-    params: ['database_api', 'get_accounts', [['hiveio']]],
-    score: 15,
-    debug: false,
-    validator: (result) => {
-      return Array.isArray(result) && result.length === 1
-    }
-  },
-  {
-    name: 'get_post',
-    type: 'fetch',
-    method: 'bridge.get_post',
-    params: { author: 'hiveio', permlink: 'hive-first-community-hardfork-complete', observer: 'hiveio' },
-    score: 15,
-    debug: false,
-    validator: (result) => {
-      return result && result.post_id && result.children > 1
-    }
-  },
-  {
-    name: 'get_ranked_by_created',
-    type: 'fetch',
-    method: 'bridge.get_ranked_posts',
-    params: { tag: '', sort: 'created', limit: 25 },
-    score: 25,
-    debug: false,
-    validator: (result) => {
-      const minTimestamp = new Date().getTime() - (1000 * 60 * 5);
-      const minDate = new Date();
-      minDate.setTime(minTimestamp);
-      const fiveMinuteAgoString = (minDate.toISOString()).split('.')[0]
-
-      return Array.isArray(result) && result.length === 25 && result[0].created > fiveMinuteAgoString
-    }
-  },
-  {
-    name: 'get_ranked_by_trending',
-    type: 'fetch',
-    method: 'bridge.get_ranked_posts',
-    params: { tag: '', sort: 'trending', limit: 25 },
-    score: 15,
-    debug: false,
-  },
-  {
-    name: 'get_account_posts_by_blog',
-    type: 'fetch',
-    method: 'bridge.get_account_posts',
-    params: { account: '$', sort: 'blog', limit: 25 },
-    score: 15,
-    debug: false,
-  },
-  {
-    name: 'get_account_posts_by_feed',
-    type: 'fetch',
-    method: 'bridge.get_account_posts',
-    params: { account: '$', sort: 'feed', limit: 25 },
-    score: 15,
-    debug: false,
-  },
-  {
-    name: 'get_account_posts_by_replies',
-    type: 'fetch',
-    method: 'bridge.get_account_posts',
-    params: { account: '$', sort: 'replies', limit: 25 },
-    score: 15,
-    debug: false,
-  },
-  {
-    name: 'get_community_pinned_and_muted',
-    type: 'fetch',
-    method: 'bridge.get_ranked_posts',
-    params: { tag :'hive-156509', sort: 'created', limit: 25 },
-    score: 15,
-    debug: false,
-    validator: (result) => {
-      if (!Array.isArray(result) || result.length !== 25) {
-        return false
-      }
-
-      if (result[0].category !== 'hive-156509') {
-        return false
-      }
-
-      if (!result[0].stats || !result[0].stats.is_pinned) {
-        return false
-      }
-
-      return true
-    }
-  },
-  {
-    name: 'get_account_history',
-    type: 'fetch',
-    method: 'call',
-    params: ['database_api', 'get_account_history', ['peak.beacon', -1, 500, ...makeBitMaskFilter([ChainTypes.operations.account_witness_vote])]],
-    score: 15,
-    debug: false,
-    validator: (result) => Array.isArray(result) && result.length === 0
-  },
-  {
-    name: 'custom_json',
-    type: 'cast',
-    method: 'custom_json',
-    params: { id: 'beacon_custom_json', json: JSON.stringify({ ping: 'pong' }), required_auths: [], required_posting_auths: [] },
-    score: 15,
-    debug: false,
-  },
-  {
-    name: 'transfer',
-    type: 'cast',
-    method: 'transfer',
-    params: { from: '$', to: '$', amount: '0.001 HIVE', memo: '$' },
-    score: 15,
-    debug: false,
-  },
-];
+export type NodeTest = {
+  name: string;
+  description: string;
+  type: string;
+  method: string;
+  params: any;
+  score: number;
+  debug: boolean;
+  validator: (result: any) => boolean;
+};
 
 export type NodeTestResult = {
   name: string;
+  description: string;
   type: string;
   method: string;
   success: boolean;
@@ -193,9 +52,189 @@ export class ScannerService implements OnModuleInit {
 
   private isRunning: boolean = false;
 
+  private tests: NodeTest[] = [];
+
   private store: NodeStatus[] = [];
 
-  constructor(private configService: ConfigService, private quotesService: QuotesService) {}
+  constructor(private configService: ConfigService, private quotesService: QuotesService) {
+    const beaconAccount = this.configService.get<string>('BEACON_ACCOUNT');
+
+    const apiChainId = this.configService.get<string>('API_CHAIN_ID') || 'beeab0de00000000000000000000000000000000000000000000000000000000';
+    const apiParamAccount = this.configService.get<string>('API_PARAM_ACCOUNT') || 'peakd';
+    const apiParamCommunity = this.configService.get<string>('API_PARAM_COMMUNITY') || 'hive-156509';
+
+    this.tests = [
+      {
+        name: 'get_version',
+        description: 'Get the current version of the node',
+        type: 'fetch',
+        method: 'database_api.get_version',
+        params: {},
+        score: 50,
+        debug: false,
+        validator: (result) => {
+          return result.chain_id === apiChainId
+        }
+      },
+      {
+        name: 'dynamic_global_properties',
+        description: 'Check chain global properties',
+        type: 'fetch',
+        method: 'database_api.get_dynamic_global_properties',
+        params: {},
+        score: 25,
+        debug: false,
+        validator: (result) => {
+          return 'head_block_number' in result && 'hbd_interest_rate' in result
+        }
+      },
+      {
+        name: 'feed_history',
+        description: 'Get price feed history',
+        type: 'fetch',
+        method: 'database_api.get_feed_history',
+        params: {},
+        score: 15,
+        debug: false,
+        validator: () => true
+      },
+      {
+        name: 'get_accounts',
+        description: 'Retrieve an account details',
+        type: 'fetch',
+        method: 'call',
+        params: ['database_api', 'get_accounts', [[apiParamAccount]]],
+        score: 25,
+        debug: false,
+        validator: (result) => {
+          return Array.isArray(result) && result.length === 1
+        }
+      },
+      {
+        name: 'get_post',
+        description: 'Retrieve a single post and associated details',
+        type: 'fetch',
+        method: 'bridge.get_post',
+        params: { author: 'hiveio', permlink: 'hive-first-community-hardfork-complete', observer: 'hiveio' },
+        score: 15,
+        debug: false,
+        validator: (result) => {
+          return result && result.post_id && result.children > 1
+        }
+      },
+      {
+        name: 'get_ranked_by_created',
+        description: 'Fetch recently created posts',
+        type: 'fetch',
+        method: 'bridge.get_ranked_posts',
+        params: { tag: '', sort: 'created', limit: 25, observer: apiParamAccount },
+        score: 25,
+        debug: false,
+        validator: (result) => {
+          const minTimestamp = new Date().getTime() - (1000 * 60 * 5);
+          const minDate = new Date();
+          minDate.setTime(minTimestamp);
+          const fiveMinuteAgoString = (minDate.toISOString()).split('.')[0]
+
+          return Array.isArray(result) && result.length === 25 && result[0].created > fiveMinuteAgoString
+        }
+      },
+      {
+        name: 'get_ranked_by_trending',
+        description: 'Fetch posts sorted by "trending"',
+        type: 'fetch',
+        method: 'bridge.get_ranked_posts',
+        params: { tag: '', sort: 'trending', limit: 25, observer: apiParamAccount },
+        score: 15,
+        debug: false,
+        validator: () => true
+      },
+      {
+        name: 'get_account_posts_by_blog',
+        description: 'Get posts in an user blog',
+        type: 'fetch',
+        method: 'bridge.get_account_posts',
+        params: { account: apiParamAccount, sort: 'blog', limit: 25, observer: apiParamAccount },
+        score: 15,
+        debug: false,
+        validator: () => true
+      },
+      {
+        name: 'get_account_posts_by_feed',
+        description: 'Get posts for an user "following" feed',
+        type: 'fetch',
+        method: 'bridge.get_account_posts',
+        params: { account: apiParamAccount, sort: 'feed', limit: 25, observer: apiParamAccount },
+        score: 15,
+        debug: false,
+        validator: () => true
+      },
+      {
+        name: 'get_account_posts_by_replies',
+        description: 'Get replies to an user posts/comments',
+        type: 'fetch',
+        method: 'bridge.get_account_posts',
+        params: { account: apiParamAccount, sort: 'replies', limit: 25, observer: apiParamAccount },
+        score: 15,
+        debug: false,
+        validator: () => true
+      },
+      {
+        name: 'get_community_pinned_and_muted',
+        description: 'Get posts feed for a community and check for pinned/muted posts',
+        type: 'fetch',
+        method: 'bridge.get_ranked_posts',
+        params: { tag: apiParamCommunity, sort: 'created', limit: 25, observer: apiParamAccount },
+        score: 15,
+        debug: false,
+        validator: (result) => {
+          if (!Array.isArray(result) || result.length !== 25) {
+            return false
+          }
+
+          if (result[0].category !== apiParamCommunity) {
+            return false
+          }
+
+          if (!result[0].stats || !result[0].stats.is_pinned) {
+            return false
+          }
+
+          return true
+        }
+      },
+      {
+        name: 'get_account_history',
+        description: 'Load transaction history for an account (both activities and wallet transactions)',
+        type: 'fetch',
+        method: 'call',
+        params: ['database_api', 'get_account_history', [beaconAccount, -1, 500, ...makeBitMaskFilter([ChainTypes.operations.account_witness_vote])]],
+        score: 15,
+        debug: false,
+        validator: (result) => Array.isArray(result) && result.length === 0
+      },
+      {
+        name: 'custom_json',
+        description: 'Try to cast a "custom_json" operation',
+        type: 'cast',
+        method: 'custom_json',
+        params: { id: 'beacon_custom_json', json: JSON.stringify({ ping: 'pong' }), required_auths: [], required_posting_auths: [beaconAccount] },
+        score: 10,
+        debug: false,
+        validator: () => true
+      },
+      {
+        name: 'transfer',
+        description: 'Try to cast a "transfer" operation (validated as part of the chain consensus)',
+        type: 'cast',
+        method: 'transfer',
+        params: { from: beaconAccount, to: beaconAccount, amount: '0.001 HIVE', memo: '$' },
+        score: 15,
+        debug: false,
+        validator: () => true
+      },
+    ];
+  }
 
   onModuleInit() {
     this.scan();
@@ -216,7 +255,7 @@ export class ScannerService implements OnModuleInit {
     this.isRunning = true;
 
     const store: NodeStatus[] = [];
-    const maxScore: number = tests.reduce((acc, cur) => { return acc + cur.score }, 0);
+    const maxScore: number = this.tests.reduce((acc, cur) => { return acc + cur.score }, 0);
 
     try {
       this.logger.log('Starting node scanner ...');
@@ -235,15 +274,13 @@ export class ScannerService implements OnModuleInit {
 
         let score: number = maxScore;
         let results: NodeTestResult[] = [];
-        for (const test of tests) {
+        for (const test of this.tests) {
           try {
             if (test.type === 'fetch') {
-              const params = 'account' in test.params ? { ...test.params, account: 'peakd' } : test.params;
-
-              this.logger.log(`Call '${test.name}', params: ${JSON.stringify(params)}: ...`);
+              this.logger.log(`Call '${test.name}', params: ${JSON.stringify(test.params)}: ...`);
 
               const start = Date.now();
-              const result = await hive.api.callAsync(test.method, params);
+              const result = await hive.api.callAsync(test.method, test.params);
               if (test.debug) {
                 this.logger.debug(`Call result: ${JSON.stringify(result)}`);
               }
@@ -255,6 +292,7 @@ export class ScannerService implements OnModuleInit {
                 this.logger.log(`Call '${test.name}', completed in ${elapsed} ms`);
                 results.push({
                   name: test.name,
+                  description: test.description,
                   type: test.type,
                   method: test.method,
                   success: true
@@ -264,6 +302,7 @@ export class ScannerService implements OnModuleInit {
                 score -= test.score;
                 results.push({
                   name: test.name,
+                  description: test.description,
                   type: test.type,
                   method: test.method,
                   success: false
@@ -271,25 +310,23 @@ export class ScannerService implements OnModuleInit {
               }
             }
             else if (test.type === 'cast') {
-              const account = this.configService.get<string>('BEACON_ACCOUNT');
-              const postingKey = this.configService.get<string>('BEACON_ACCOUNT_POSTING_KEY');
-              const activeKey = this.configService.get<string>('BEACON_ACCOUNT_ACTIVE_KEY');
+
 
               const start = Date.now();
               let result = null;
               if (test.method === 'custom_json') {
+                const postingKey = this.configService.get<string>('BEACON_ACCOUNT_POSTING_KEY');
                 if (postingKey) {
-                  const params = { ...test.params, required_posting_auths: [account] };
-
-                  this.logger.log(`Cast '${test.name}', params: ${JSON.stringify(params)}: ...`);
-                  result = await hive.broadcast.sendAsync({ operations: [[test.method, params]], extensions: [] }, { posting: postingKey.trim() })
+                  this.logger.log(`Cast '${test.name}', params: ${JSON.stringify(test.params)}: ...`);
+                  result = await hive.broadcast.sendAsync({ operations: [[test.method, test.params]], extensions: [] }, { posting: postingKey.trim() })
                 } else {
                   this.logger.log(`Skip ${test.name} -> no posting key`);
                 }
               }
               else if (test.method === 'transfer') {
+                const activeKey = this.configService.get<string>('BEACON_ACCOUNT_ACTIVE_KEY');
                 if (activeKey) {
-                  const params = { ...test.params, from: account, to: account, memo: this.quotesService.getRandomQuote() };
+                  const params = { ...test.params, memo: this.quotesService.getRandomQuote() };
 
                   this.logger.log(`Cast '${test.name}', params: ${JSON.stringify(params)}: ...`);
                   result = await hive.broadcast.sendAsync({ operations: [[test.method, params]], extensions: [] }, { active: activeKey.trim() })
@@ -311,6 +348,7 @@ export class ScannerService implements OnModuleInit {
 
               results.push({
                 name: test.name,
+                description: test.description,
                 type: test.type,
                 method: test.method,
                 success: true
@@ -322,6 +360,7 @@ export class ScannerService implements OnModuleInit {
 
             results.push({
               name: test.name,
+              description: test.description,
               type: test.type,
               method: test.method,
               success: false
