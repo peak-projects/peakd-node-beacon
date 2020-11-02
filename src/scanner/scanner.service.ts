@@ -16,7 +16,8 @@ const allNodes = [
   { name: 'api.pharesim.me', endpoint: 'https://api.pharesim.me' },
   { name: 'hive-api.arcange.eu', endpoint: 'https://hive-api.arcange.eu' },
   { name: 'hived.privex.io', endpoint: 'https://hived.privex.io' },
-  { name: 'fin.hive.3speak.co', endpoint: 'https://fin.hive.3speak.co' }
+  { name: 'fin.hive.3speak.co', endpoint: 'https://fin.hive.3speak.co' },
+  { name: 'rpc.ecency.com', endpoint: 'https://rpc.ecency.com', website_only: true }
 ];
 
 export type NodeTest = {
@@ -43,7 +44,8 @@ export type NodeStatus = {
   endpoint: string;
   updated_at: string;
   score: number;
-  tests: NodeTestResult[]
+  website_only: boolean;
+  tests: NodeTestResult[];
 };
 
 @Injectable()
@@ -371,7 +373,14 @@ export class ScannerService implements OnModuleInit {
         }
 
         const nodeScore = Math.round(score * 100 / maxScore)
-        store.push({ name: node.name, endpoint: node.endpoint, updated_at: (new Date()).toISOString(), score: nodeScore, tests: results });
+        store.push({
+          name: node.name,
+          endpoint: node.endpoint,
+          updated_at: new Date().toISOString(),
+          score: nodeScore,
+          website_only: node.website_only || false,
+          tests: results,
+        });
         this.logger.log(`Node scan completed for ${node.name}, score: ${nodeScore}`);
       }
 

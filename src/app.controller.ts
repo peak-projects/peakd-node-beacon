@@ -32,6 +32,7 @@ export class AppController {
   @Get('best')
   getBest(): NodeScore[] {
     return this.scannerService.getNodes()
+      .filter(n => !n.website_only)
       .filter(n => n.score > 75)
       .map(n => fromNodeStatus(n))
       .sort((a, b) => b.score - a.score);
