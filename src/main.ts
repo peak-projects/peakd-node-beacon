@@ -20,7 +20,7 @@ async function bootstrap() {
   }
 
   const options = new DocumentBuilder()
-    .setTitle('PeakD Node Beacon')
+    .setTitle('Hive Node Beacon')
     .setDescription('A node monitor for the Hive blockchain')
     .setVersion('1.0')
     .build();

@@ -32,7 +32,7 @@
               class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-no-wrap font-semibold text-left"
               :class="color === 'light' ? 'bg-gray-100 text-gray-600 border-gray-200' : 'bg-green-800 text-green-300 border-green-700'"
             >
-              Endpoint
+              Last update
             </th>
             <th
               class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-no-wrap font-semibold text-left"
@@ -62,12 +62,13 @@
                 :class="[color === 'light' ? 'text-gray-700' : 'text-white']"
               >
                 {{ node.name }}
+                <small class="block text-gray-600 font-normal text-xs">{{ node.endpoint }}</small>
               </span>
             </td>
             <td
               class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm whitespace-no-wrap p-4"
             >
-              {{ node.endpoint }}
+              {{ minutesAgo(node.updated_at) }}
             </td>
             <td
               class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm whitespace-no-wrap p-4"
@@ -109,7 +110,7 @@
                     { 'text-red-500': node.score < 80 }
                   ]">
                 </i>
-                {{ node.success }} / {{ node.fail }}
+                {{ node.success }} / {{ node.success + node.fail }}
                 <i class="fas fa-search text-lg text-default ml-3"></i>
               </a>
             </td>
@@ -224,6 +225,14 @@ export default {
     }
   },
   methods: {
+    minutesAgo: function (date) {
+      const now = Date.now()
+      const timestamp = new Date(date).getTime()
+
+      return now - timestamp < 0
+        ? 'now'
+        : `${parseInt((now - timestamp) / 60000)} mins ago`
+    },
     openNodeModal: async function(score) {
       const node = await axios.get(`/nodes/${score.name}`)
       this.selectedNode = node.data

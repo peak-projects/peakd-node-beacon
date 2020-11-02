@@ -41,6 +41,7 @@ export type NodeTestResult = {
 export type NodeStatus = {
   name: string;
   endpoint: string;
+  updated_at: string;
   score: number;
   tests: NodeTestResult[]
 };
@@ -370,7 +371,7 @@ export class ScannerService implements OnModuleInit {
         }
 
         const nodeScore = Math.round(score * 100 / maxScore)
-        store.push({ name: node.name, endpoint: node.endpoint, score: nodeScore, tests: results });
+        store.push({ name: node.name, endpoint: node.endpoint, updated_at: (new Date()).toISOString(), score: nodeScore, tests: results });
         this.logger.log(`Node scan completed for ${node.name}, score: ${nodeScore}`);
       }
 

@@ -5,6 +5,7 @@ export type NodeScore = {
   name: string;
   endpoint: string;
   score: number;
+  updated_at: string;
   success: number;
   fail: number;
 };
@@ -13,6 +14,7 @@ const fromNodeStatus = (node: NodeStatus): NodeScore => ({
   name: node.name,
   endpoint: node.endpoint,
   score: node.score,
+  updated_at: node.updated_at,
   success: node.tests.filter(t => t.success).length,
   fail: node.tests.filter(t => !t.success).length
 })
