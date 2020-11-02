@@ -208,10 +208,10 @@ export class ScannerService implements OnModuleInit {
         description: 'Load transaction history for an account (both activities and wallet transactions)',
         type: 'fetch',
         method: 'call',
-        params: ['database_api', 'get_account_history', [beaconAccount, -1, 500, ...makeBitMaskFilter([ChainTypes.operations.account_witness_vote])]],
+        params: ['database_api', 'get_account_history', [beaconAccount, -1, 250, ...makeBitMaskFilter([ChainTypes.operations.transfer])]],
         score: 15,
         debug: false,
-        validator: (result) => Array.isArray(result) && result.length === 0
+        validator: (result) => Array.isArray(result) && result.length > 50
       },
       {
         name: 'custom_json',
