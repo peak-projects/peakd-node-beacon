@@ -81,7 +81,7 @@
                     :class="[
                       { 'bg-green-200': node.score === 100 },
                       { 'bg-yellow-200': node.score > 90 },
-                      { 'bg-orange-200': node.score > 80 },
+                      { 'bg-orange-200': node.score >= 80 },
                       { 'bg-red-200': node.score < 80 }
                     ]">
                     <div
@@ -90,7 +90,7 @@
                       :class="[
                       { 'bg-green-500': node.score === 100 },
                       { 'bg-yellow-500': node.score > 90 },
-                      { 'bg-orange-500': node.score > 80 },
+                      { 'bg-orange-500': node.score >= 80 },
                       { 'bg-red-500': node.score < 80 }
                     ]"></div>
                   </div>
@@ -106,7 +106,7 @@
                   :class="[
                     { 'text-green-500': node.score === 100 },
                     { 'text-yellow-500': node.score > 90 },
-                    { 'text-orange-500': node.score > 80 },
+                    { 'text-orange-500': node.score >= 80 },
                     { 'text-red-500': node.score < 80 }
                   ]">
                 </i>
