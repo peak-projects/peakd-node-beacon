@@ -254,10 +254,11 @@ export class ScannerService implements OnModuleInit {
 
     this.isRunning = true;
 
-    const store: NodeStatus[] = [];
-    const maxScore: number = this.tests.reduce((acc, cur) => { return acc + cur.score }, 0);
-
     try {
+      const store: NodeStatus[] = [];
+      const maxScore: number = this.tests.reduce((acc, cur) => { return acc + cur.score }, 0);
+
+
       this.logger.log('Starting node scanner ...');
 
       const excludedNodes = this.configService.get<string>('EXCLUDED_NODES')
