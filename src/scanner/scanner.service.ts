@@ -130,7 +130,7 @@ export class ScannerService implements OnModuleInit {
         description: 'Fetch recently created posts',
         type: 'fetch',
         method: 'bridge.get_ranked_posts',
-        params: { tag: '', sort: 'created', limit: 25, observer: apiParamAccount },
+        params: { tag: '', sort: 'created', limit: 20, observer: apiParamAccount },
         score: 25,
         debug: false,
         validator: (result) => {
@@ -139,7 +139,7 @@ export class ScannerService implements OnModuleInit {
           minDate.setTime(minTimestamp);
           const fiveMinuteAgoString = (minDate.toISOString()).split('.')[0]
 
-          return Array.isArray(result) && result.length === 25 && result[0].created > fiveMinuteAgoString
+          return Array.isArray(result) && result.length === 20 && result[0].created > fiveMinuteAgoString
         }
       },
       {
@@ -147,7 +147,7 @@ export class ScannerService implements OnModuleInit {
         description: 'Fetch posts sorted by "trending"',
         type: 'fetch',
         method: 'bridge.get_ranked_posts',
-        params: { tag: '', sort: 'trending', limit: 25, observer: apiParamAccount },
+        params: { tag: '', sort: 'trending', limit: 20, observer: apiParamAccount },
         score: 15,
         debug: false,
         validator: () => true
@@ -157,27 +157,38 @@ export class ScannerService implements OnModuleInit {
         description: 'Get posts in an user blog',
         type: 'fetch',
         method: 'bridge.get_account_posts',
-        params: { account: apiParamAccount, sort: 'blog', limit: 25, observer: apiParamAccount },
+        params: { account: apiParamAccount, sort: 'blog', limit: 20, observer: apiParamAccount },
         score: 15,
         debug: false,
         validator: () => true
       },
       {
         name: 'get_account_posts_by_feed',
-        description: 'Get posts for an user "following" feed',
+        description: 'Get posts for an user "following" feed in correct order',
         type: 'fetch',
         method: 'bridge.get_account_posts',
-        params: { account: apiParamAccount, sort: 'feed', limit: 25, observer: apiParamAccount },
+        params: { account: apiParamAccount, sort: 'feed', limit: 20, observer: apiParamAccount },
         score: 15,
         debug: false,
-        validator: () => true
+        validator: (result) => {
+          if (!Array.isArray(result) || result.length !== 20) {
+            return false
+          }
+
+          // check that posts are sorted by created desc
+          const isSorted = [...result] // clone array
+            .sort((a, b) => b.created.localeCompare(a.created)) // sort it
+            .every((el, i) => el.author === result[i].author && el.permlink === result[i].permlink) // compare with original value
+
+          return isSorted
+        }
       },
       {
         name: 'get_account_posts_by_replies',
         description: 'Get replies to an user posts/comments',
         type: 'fetch',
         method: 'bridge.get_account_posts',
-        params: { account: apiParamAccount, sort: 'replies', limit: 25, observer: apiParamAccount },
+        params: { account: apiParamAccount, sort: 'replies', limit: 20, observer: apiParamAccount },
         score: 15,
         debug: false,
         validator: () => true
@@ -187,11 +198,11 @@ export class ScannerService implements OnModuleInit {
         description: 'Get posts feed for a community and check for pinned/muted posts',
         type: 'fetch',
         method: 'bridge.get_ranked_posts',
-        params: { tag: apiParamCommunity, sort: 'created', limit: 25, observer: apiParamAccount },
+        params: { tag: apiParamCommunity, sort: 'created', limit: 20, observer: apiParamAccount },
         score: 15,
         debug: false,
         validator: (result) => {
-          if (!Array.isArray(result) || result.length !== 25) {
+          if (!Array.isArray(result) || result.length !== 20) {
             return false
           }
 

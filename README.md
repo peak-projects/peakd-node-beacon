@@ -1,6 +1,6 @@
 # Hive Node Beacon
 
-A node scanner/monitoring tool for the Hive blockchain. Check it out on [beacon.peakd.com](https://beacon.peakd.com)
+A Node.js scanner/monitoring tool for the Hive blockchain. Check it out on [beacon.peakd.com](https://beacon.peakd.com)
 
 # Usage
 
