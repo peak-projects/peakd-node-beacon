@@ -15,6 +15,7 @@ const allNodes = [
   { name: 'rpc.ausbit.dev', endpoint: 'https://rpc.ausbit.dev' },
   { name: 'api.pharesim.me', endpoint: 'https://api.pharesim.me' },
   { name: 'hive-api.arcange.eu', endpoint: 'https://hive-api.arcange.eu' },
+  { name: 'hived.emre.sh', endpoint: 'https://hived.emre.sh' },
   { name: 'hived.privex.io', endpoint: 'https://hived.privex.io' },
   { name: 'fin.hive.3speak.co', endpoint: 'https://fin.hive.3speak.co' },
   { name: 'rpc.ecency.com', endpoint: 'https://rpc.ecency.com', website_only: true }
