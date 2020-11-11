@@ -115,15 +115,15 @@ export class ScannerService implements OnModuleInit {
         }
       },
       {
-        name: 'get_followers',
-        description: 'Retrieve a follower for an account',
+        name: 'get_relationship_between_accounts',
+        description: 'Retrieve the relationship between two accounts',
         type: 'fetch',
-        method: 'call',
-        params: ['follow_api', 'get_followers', [apiParamAccount, beaconAccount, 'blog', 1]],
+        method: 'bridge.get_relationship_between_accounts',
+        params: [beaconAccount, apiParamAccount],
         score: 15,
         debug: false,
         validator: (result) => {
-          return Array.isArray(result) && result.length === 1 && result[0].follower && result[0].follower === apiParamAccount
+          return result.follows === true && result.ignores === false
         }
       },
       {
