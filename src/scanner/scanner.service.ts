@@ -326,8 +326,6 @@ export class ScannerService implements OnModuleInit {
               }
             }
             else if (test.type === 'cast') {
-
-
               const start = Date.now();
               let result = null;
               if (test.method === 'custom_json') {
@@ -371,7 +369,7 @@ export class ScannerService implements OnModuleInit {
               });
             }
           } catch (error) {
-            this.logger.warn(`Call '${test.method}', failed: ${JSON.stringify(error)}`);
+            this.logger.warn(`Call '${test.method}', failed: ${error.toString()}`);
             score -= test.score;
 
             results.push({
@@ -401,7 +399,7 @@ export class ScannerService implements OnModuleInit {
       this.logger.log('Node scan completed successfully')
       return true;
     } catch (error) {
-      this.logger.error(`Unexpected error during node scanning: ${JSON.stringify(error)}`)
+      this.logger.error(`Unexpected error during node scanning: ${error.toString()}`)
       return false;
     } finally {
       this.isRunning = false;
