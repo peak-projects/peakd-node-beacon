@@ -65,7 +65,7 @@ export class ScannerService implements OnModuleInit {
 
     const apiChainId = this.configService.get<string>('API_CHAIN_ID') || 'beeab0de00000000000000000000000000000000000000000000000000000000';
     const apiParamAccount = this.configService.get<string>('API_PARAM_ACCOUNT') || 'peakd';
-    const apiParamCommunity = this.configService.get<string>('API_PARAM_COMMUNITY') || 'hive-156509';
+    const apiParamCommunity = this.configService.get<string>('API_PARAM_COMMUNITY') || 'hive-189727';
 
     this.tests = [
       {
