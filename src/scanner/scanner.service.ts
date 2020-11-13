@@ -211,11 +211,11 @@ export class ScannerService implements OnModuleInit {
         description: 'Get posts feed for a community and check for pinned/muted posts',
         type: 'fetch',
         method: 'bridge.get_ranked_posts',
-        params: { tag: apiParamCommunity, sort: 'created', limit: 20, observer: apiParamAccount },
+        params: { tag: apiParamCommunity, sort: 'created', limit: 5, observer: apiParamAccount },
         score: 15,
         debug: false,
         validator: (result) => {
-          if (!Array.isArray(result) || result.length !== 20) {
+          if (!Array.isArray(result) || result.length !== 5) {
             return false
           }
 
