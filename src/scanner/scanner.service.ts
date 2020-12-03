@@ -180,11 +180,11 @@ export class ScannerService implements OnModuleInit {
         description: 'Get posts for an user "following" feed in correct order',
         type: 'fetch',
         method: 'bridge.get_account_posts',
-        params: { account: apiParamAccount, sort: 'feed', limit: 20, observer: apiParamAccount },
+        params: { account: apiParamAccount, sort: 'feed', limit: 5, observer: apiParamAccount },
         score: 15,
         debug: false,
         validator: (result) => {
-          if (!Array.isArray(result) || result.length !== 20) {
+          if (!Array.isArray(result) || result.length !== 5) {
             return false
           }
 
