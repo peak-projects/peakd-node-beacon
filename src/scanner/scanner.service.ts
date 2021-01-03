@@ -81,6 +81,30 @@ export class ScannerService implements OnModuleInit {
         }
       },
       {
+        name: 'db_head_state',
+        description: 'Get the current state of the node (less than 10 mins behind)',
+        type: 'fetch',
+        method: 'hive.db_head_state',
+        params: {},
+        score: 50,
+        debug: false,
+        validator: (result) => {
+          return result.db_head_block > 50000000 && result.db_head_age < 600
+        }
+      },
+      {
+        name: 'db_head_age',
+        description: 'Check if the node is in sync with the chain (less than 30 secs behind)',
+        type: 'fetch',
+        method: 'hive.db_head_state',
+        params: {},
+        score: 15,
+        debug: false,
+        validator: (result) => {
+          return result.db_head_age < 30
+        }
+      },
+      {
         name: 'dynamic_global_properties',
         description: 'Check chain global properties',
         type: 'fetch',
