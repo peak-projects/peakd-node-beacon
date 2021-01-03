@@ -1,10 +1,10 @@
 {
-  "name": "peakd-node-monitor",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "name": "peakd-node-beacon",
+  "version": "1.0.1",
+  "description": "A tool to monitor the state of API nodes on the Hive blockchain",
+  "author": "asgarth",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build && cd client && npm install && npm run build",
