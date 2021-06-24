@@ -8,24 +8,6 @@ import {
 } from '@hiveio/hive-js/lib/auth/serializer';
 import { QuotesService } from '../quotes/quotes.service';
 
-const allNodes = [
-  { name: 'api.hive.blog', endpoint: 'https://api.hive.blog' },
-  { name: 'api.deathwing.me', endpoint: 'https://api.deathwing.me' },
-  { name: 'hive-api.arcange.eu', endpoint: 'https://hive-api.arcange.eu' },
-  { name: 'hived.emre.sh', endpoint: 'https://hived.emre.sh' },
-  { name: 'api.hivekings.com', endpoint: 'https://api.hivekings.com' },
-  { name: 'api.openhive.network', endpoint: 'https://api.openhive.network' },
-  { name: 'hive.roelandp.nl', endpoint: 'https://hive.roelandp.nl' },
-  { name: 'rpc.ausbit.dev', endpoint: 'https://rpc.ausbit.dev' },
-  { name: 'api.pharesim.me', endpoint: 'https://api.pharesim.me' },
-  { name: 'hived.privex.io', endpoint: 'https://hived.privex.io' },
-  {
-    name: 'rpc.ecency.com',
-    endpoint: 'https://rpc.ecency.com',
-    website_only: true,
-  },
-];
-
 export type NodeTest = {
   name: string;
   description: string;
@@ -53,6 +35,39 @@ export type NodeStatus = {
   website_only: boolean;
   tests: NodeTestResult[];
 };
+
+const allNodes = [
+  { name: 'api.hive.blog', endpoint: 'https://api.hive.blog' },
+  { name: 'api.deathwing.me', endpoint: 'https://api.deathwing.me' },
+  { name: 'hive-api.arcange.eu', endpoint: 'https://hive-api.arcange.eu' },
+  { name: 'hived.emre.sh', endpoint: 'https://hived.emre.sh' },
+  { name: 'api.hivekings.com', endpoint: 'https://api.hivekings.com' },
+  { name: 'api.openhive.network', endpoint: 'https://api.openhive.network' },
+  { name: 'hive.roelandp.nl', endpoint: 'https://hive.roelandp.nl' },
+  { name: 'rpc.ausbit.dev', endpoint: 'https://rpc.ausbit.dev' },
+  { name: 'api.pharesim.me', endpoint: 'https://api.pharesim.me' },
+  { name: 'hived.privex.io', endpoint: 'https://hived.privex.io' },
+  {
+    name: 'rpc.ecency.com',
+    endpoint: 'https://rpc.ecency.com',
+    website_only: true,
+  },
+];
+
+const promiseWithTimeout = (promise: Promise<any>, timeoutMs: number) => {
+  let timeoutHandle: NodeJS.Timeout;
+  const timeoutPromise = new Promise((resolve, reject) => {
+    timeoutHandle = setTimeout(() => reject(new Error(`Call timeout after ${timeoutMs}ms`)), timeoutMs);
+  });
+
+  return Promise.race([
+    promise,
+    timeoutPromise,
+  ]).then((result) => {
+    clearTimeout(timeoutHandle);
+    return result;
+  });
+}
 
 @Injectable()
 export class ScannerService implements OnModuleInit {
@@ -382,6 +397,8 @@ export class ScannerService implements OnModuleInit {
 
     this.isRunning = true;
 
+    const apiCallTimeout = this.configService.get<number>('API_CALL_TIMEOUT') || 15000;
+
     try {
       const store: NodeStatus[] = [];
       const maxScore: number = this.tests.reduce((acc, cur) => {
@@ -414,7 +431,7 @@ export class ScannerService implements OnModuleInit {
               );
 
               const start = Date.now();
-              const result = await hive.api.callAsync(test.method, test.params);
+              const result = await promiseWithTimeout(hive.api.callAsync(test.method, test.params), apiCallTimeout);
               if (test.debug) {
                 this.logger.debug(`Call result: ${JSON.stringify(result)}`);
               }
