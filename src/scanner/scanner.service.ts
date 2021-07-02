@@ -387,7 +387,7 @@ export class ScannerService implements OnModuleInit {
     return this.store;
   }
 
-  @Cron('0 */10 * * * *')
+  @Cron('0 */1 * * * *')
   async scan(): Promise<boolean> {
     // skip if already running
     if (this.isRunning) {
@@ -401,7 +401,6 @@ export class ScannerService implements OnModuleInit {
       this.configService.get<number>('API_CALL_TIMEOUT') || 15000;
 
     try {
-      const store: NodeStatus[] = [];
       const maxScore: number = this.tests.reduce((acc, cur) => {
         return acc + cur.score;
       }, 0);
@@ -555,20 +554,29 @@ export class ScannerService implements OnModuleInit {
         }
 
         const nodeScore = Math.round((score * 100) / maxScore);
-        store.push({
+
+        // updated node status in local store
+        const updatedNodeStatus = {
           name: node.name,
           endpoint: node.endpoint,
           updated_at: new Date().toISOString(),
           score: nodeScore,
           website_only: node.website_only || false,
           tests: results,
-        });
+        };
+
+        const prevIndex = this.store.findIndex(
+          stored => stored.name === updatedNodeStatus.name,
+        );
+        if (prevIndex === -1) {
+          this.store.push(updatedNodeStatus);
+        } else {
+          this.store.splice(prevIndex, 1, updatedNodeStatus);
+        }
         this.logger.log(
           `Node scan completed for ${node.name}, score: ${nodeScore}`,
         );
       }
-
-      this.store = store;
 
       this.logger.log('Node scan completed successfully');
       return true;
