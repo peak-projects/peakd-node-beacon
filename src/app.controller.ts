@@ -28,6 +28,9 @@ const fromNodeStatus = (node: NodeStatus): NodeScore => ({
 const BEST_NODES_SCORE_THRESHOLD = 100;
 const VALID_NODES_SCORE_THRESHOLD = 75;
 const MIN_NODES = 5;
+
+const { name, version } = require('../package.json');
+
 @Controller()
 export class AppController {
   constructor(private readonly scannerService: ScannerService) {}
@@ -37,8 +40,13 @@ export class AppController {
     return 'pong';
   }
 
+  @Get('version')
+  version(): Object {
+    return { name, version };
+  }
+
   @Get('best')
-  getBest(): NodeScore[] {
+  best(): NodeScore[] {
     const nodes = this.scannerService
       .getNodes()
       .filter(n => n.score > 0 && !n.website_only);
@@ -62,12 +70,12 @@ export class AppController {
   }
 
   @Get('nodes')
-  getNodes(): NodeScore[] {
+  nodes(): NodeScore[] {
     return this.scannerService.getNodes().map(n => fromNodeStatus(n));
   }
 
   @Get('nodes/:name')
-  getNode(@Param('name') name: string): NodeStatus {
+  node(@Param('name') name: string): NodeStatus {
     const node = this.scannerService.getNodes().find(n => n.name === name);
     if (!node) {
       throw new HttpException('API node not found', HttpStatus.BAD_REQUEST);
