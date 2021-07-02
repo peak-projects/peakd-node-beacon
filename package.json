@@ -1,6 +1,6 @@
 {
   "name": "peakd-node-beacon",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "A tool to monitor the state of API nodes on the Hive blockchain",
   "author": "asgarth",
   "private": true,
