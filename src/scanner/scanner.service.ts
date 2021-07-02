@@ -387,7 +387,7 @@ export class ScannerService implements OnModuleInit {
     return this.store;
   }
 
-  @Cron('0 */1 * * * *')
+  @Cron('0 */10 * * * *')
   async scan(): Promise<boolean> {
     // skip if already running
     if (this.isRunning) {
